@@ -1,5 +1,6 @@
 python-telegram-bot
 google-genai
 requests
-yt-dlp>=2024.03.10
+yt-dlp --upgrade
+curl_cffi
 flask
