@@ -1,7 +1,7 @@
 python-telegram-bot
 google-genai
 requests
-yt-dlp
+yt-dlp @ https://github.com/yt-dlp/yt-dlp/archive/master.tar.gz
 curl_cffi
 js2py
 flask
