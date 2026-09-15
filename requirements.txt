@@ -1,6 +1,7 @@
 python-telegram-bot
 google-genai
 requests
-yt-dlp --upgrade
+yt-dlp
 curl_cffi
+js2py
 flask
