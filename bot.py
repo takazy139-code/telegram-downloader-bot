@@ -69,9 +69,10 @@ ydl_opts = {
             'outtmpl': 'downloads/%(id)s.%(ext)s',
             'max_filesize': 50 * 1024 * 1024,
             'nocheckcertificate': True,
+            'geo_bypass': True,
             'extractor_args': {
                 'youtube': {
-                    'player_client': ['mweb', 'android']
+                    'player_client': ['mweb']
                 }
             },
         }
@@ -123,14 +124,17 @@ async def mp3_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("⏳ កំពុងបម្លែងជាសំឡេង MP3, សូមរង់ចាំបន្តិច...")
     
     ydl_opts = {
-        'format': 'bestaudio/best',
-        'outtmpl': 'downloads/%(id)s.%(ext)s',
-        'extractor_args': {
-            'youtube': {
-                'player_client': ['android', 'web']
-            }
-        },
-    }
+            'format': 'best[ext=mp4]/best',
+            'outtmpl': 'downloads/%(id)s.%(ext)s',
+            'max_filesize': 50 * 1024 * 1024,
+            'nocheckcertificate': True,
+            'geo_bypass': True,
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['mweb']
+                }
+            },
+        }
     
     try:
         os.makedirs("downloads", exist_ok=True)
