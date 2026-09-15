@@ -64,13 +64,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if text.startswith("http://") or text.startswith("https://"):
         await update.message.reply_text("⏳ កំពុងទាញយកវីដេអូ និងបង្កើត AI Caption ជូន, សូមរង់ចាំបន្តិច...")
         
-        ydl_opts = {
+ydl_opts = {
             'format': 'best[ext=mp4]/best',
             'outtmpl': 'downloads/%(id)s.%(ext)s',
             'max_filesize': 50 * 1024 * 1024,
             'extractor_args': {
                 'youtube': {
-                    'player_client': ['android', 'web']
+                    'player_client': ['ios', 'mweb']  # ប្រើ ios និង mobile web ដើម្បីចៀសវាង Bot Check
                 }
             },
         }
