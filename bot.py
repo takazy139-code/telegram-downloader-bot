@@ -70,7 +70,7 @@ ydl_opts = {
             'max_filesize': 50 * 1024 * 1024,
             'extractor_args': {
                 'youtube': {
-                    'player_client': ['ios', 'mweb']  # ប្រើ ios និង mobile web ដើម្បីចៀសវាង Bot Check
+                    'player_client': ['web_embedded', 'tv']  # ប្រើ web_embedded និង tv ដើម្បីឆ្លងកាត់ Bot Check របស់ YouTube บน Cloud
                 }
             },
         }
