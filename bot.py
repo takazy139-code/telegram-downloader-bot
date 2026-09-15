@@ -72,15 +72,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("⏳ កំពុងទាញយកវីដេអូ និងបង្កើត AI Caption ជូន, សូមរង់ចាំបន្តិច...")
         
         ydl_opts = {
-            'format': 'bestvideo+bestaudio/best', # ប្រើទម្រង់នេះដើម្បី support YouTube Shorts និង Long video យ៉ាងល្អ
+            'format': 'best',  # ទាញយកទម្រង់ស្រាប់ មិនបាច់ប្រើ ffmpeg
             'outtmpl': 'downloads/%(id)s.%(ext)s',
             'max_filesize': 50 * 1024 * 1024,
-            'cookiefile': 'cookies.txt',
             'nocheckcertificate': True,
-            'merge_output_format': 'mp4',
             'extractor_args': {
                 'youtube': {
-                    'player_client': ['mweb', 'android']
+                    'player_client': ['ios']  # ใช้ ios client เพื่อหลบเลี่ยงการบล็อกโดยไม่ต้องพึ่ง cookies
                 }
             },
         }
@@ -90,10 +88,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
                 filename = ydl.prepare_filename(info)
-                # បើមានការ merge ឯកសារ filename អាចត្រូវការដូរ extension ទៅជា .mp4
-                if not filename.endswith('.mp4') and os.path.exists(filename.rsplit('.', 1)[0] + '.mp4'):
-                    filename = filename.rsplit('.', 1)[0] + '.mp4'
-                
                 title = info.get('title', 'Downloaded Video')
                 extractor = info.get('extractor', 'Social Media')
 
@@ -137,11 +131,10 @@ async def mp3_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ydl_opts = {
         'format': 'bestaudio/best',
         'outtmpl': 'downloads/%(id)s.%(ext)s',
-        'cookiefile': 'cookies.txt',
         'nocheckcertificate': True,
         'extractor_args': {
             'youtube': {
-                'player_client': ['mweb', 'android']
+                'player_client': ['ios']
             }
         },
     }
@@ -159,7 +152,7 @@ async def mp3_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if os.path.exists(filename):
             os.remove(filename)
     except Exception as e:
-        await update.message.reply_text(f"❌ មានបញ្ហាក្នុងការទាញយក MP3: {str(e)}")
+        await update.message.reply_text(f"❌ មានបញ្ហាក្នុងการទាញយក MP3: {str(e)}")
 
 # --- MAIN FUNCTION ---
 def main():
