@@ -6,8 +6,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("⏳ កំពុងទាញយកវីដេអូ និងបង្កើត AI Caption ជូន, សូមរង់ចាំបន្តិច...")
         
         # កំណត់ yt-dlp options ជាមួយ player_client ដើម្បីបំបែកការទប់ស្កាត់របស់ YouTube
-        ydl_opts = {
-            'format': 'best',
+   ydl_opts = {
+            'format': 'best[ext=mp4]/best', # ទាញយក Formats ណាដែលជា MP4 ស្រាប់
             'outtmpl': 'downloads/%(id)s.%(ext)s',
             'max_filesize': 50 * 1024 * 1024,
             'extractor_args': {
