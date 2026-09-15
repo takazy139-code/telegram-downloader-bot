@@ -72,7 +72,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("⏳ កំពុងទាញយកវីដេអូ និងបង្កើត AI Caption ជូន, សូមរង់ចាំបន្តិច...")
         
         ydl_opts = {
-            'format': 'best[ext=mp4]/best',
+            'format': 'best',
             'outtmpl': 'downloads/%(id)s.%(ext)s',
             'max_filesize': 50 * 1024 * 1024,
             'cookiefile': os.path.join(os.getcwd(), 'cookies.txt'), # បញ្ជាក់ទីតាំងច្បាស់លាស់
