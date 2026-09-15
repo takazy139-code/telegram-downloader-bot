@@ -37,18 +37,17 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "📥 **វិធីប្រើប្រាស់៖**\n"
         "គ្រាន់តែផ្ញើ Link (TikTok, YouTube, Facebook, Instagram) មកទីនេះ ខ្ញុំនឹងធ្វើការ៖\n"
         "1️⃣ ទាញយកវីដេអូជូនអ្នក (HD គ្មានសញ្ញាទឹក)\n"
-        "2️⃣ បង្កើត Caption ដ៏ទាក់ទាញ និង Hashtag ពេញនិយមស្វ័យប្រវត្តិដោយ AI!\n\n"
+        "2️⃣ បង្កើត Caption ខ្លីទាក់ទាញ និង Hashtag ស្វ័យប្រវត្តិដោយ AI!\n\n"
         "🎵 **ទាញយកជាសំឡេង៖**\n"
         "ប្រើពាក្យបញ្ជា `/mp3 [Link]` ដើម្បីបម្លែងជា MP3"
     )
 
-# --- GEMINI AI CAPTION GENERATOR ---
+# --- GEMINI AI CAPTION GENERATOR (Fixed short length for Telegram) ---
 def generate_ai_caption(video_title: str, platform: str) -> str:
     try:
         prompt = (
-            f"Write an engaging social media caption and a list of popular relevant hashtags "
-            f"for a {platform} video titled: '{video_title}'. "
-            f"Make it catchy, professional, and ready to post."
+            f"Write a very short social media caption and 3 popular hashtags "
+            f"for a {platform} video titled: '{video_title}'. Keep it under 200 characters."
         )
         response = client.models.generate_content(
             model='gemini-3.6-flash',
@@ -56,7 +55,7 @@ def generate_ai_caption(video_title: str, platform: str) -> str:
         )
         return response.text
     except Exception as e:
-        return f"📌 វីដេអូ៖ {video_title}\n#Video #Download #Trending #SocialMedia"
+        return f"📌 វីដេអូ៖ {video_title}\n#Video #Trending"
 
 # --- HANDLE LINKS & MESSAGES ---
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -86,10 +85,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             ai_caption = generate_ai_caption(title, extractor)
             
+            # Safe truncation to strictly comply with Telegram's 1024 caption limit
+            caption_text = f"🎥 **{title}**\n\n{ai_caption}"
+            if len(caption_text) > 1024:
+                caption_text = caption_text[:1021] + "..."
+
             with open(filename, 'rb') as video_file:
                 await update.message.reply_video(
                     video=video_file,
-                    caption=f"🎥 **{title}**\n\n{ai_caption}",
+                    caption=caption_text,
                     parse_mode="Markdown"
                 )
             
