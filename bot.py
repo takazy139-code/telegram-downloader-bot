@@ -68,9 +68,10 @@ ydl_opts = {
             'format': 'best[ext=mp4]/best',
             'outtmpl': 'downloads/%(id)s.%(ext)s',
             'max_filesize': 50 * 1024 * 1024,
+            'nocheckcertificate': True,
             'extractor_args': {
                 'youtube': {
-                    'player_client': ['web_embedded', 'tv']  # ប្រើ web_embedded និង tv ដើម្បីឆ្លងកាត់ Bot Check របស់ YouTube บน Cloud
+                    'player_client': ['mweb', 'android']
                 }
             },
         }
