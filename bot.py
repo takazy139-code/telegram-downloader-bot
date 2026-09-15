@@ -1,5 +1,6 @@
 import os
 import logging
+import re
 from google import genai
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
@@ -30,6 +31,11 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# --- URL EXTRACTOR HELPER ---
+def extract_url(text):
+    urls = re.findall(r'(https?://[^\s]+)', text)
+    return urls[0] if urls else text
+
 # --- /start COMMAND ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
@@ -42,7 +48,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "ប្រើពាក្យបញ្ជា `/mp3 [Link]` ដើម្បីបម្លែងជា MP3"
     )
 
-# --- GEMINI AI CAPTION GENERATOR (Fixed short length for Telegram) ---
+# --- GEMINI AI CAPTION GENERATOR ---
 def generate_ai_caption(video_title: str, platform: str) -> str:
     try:
         prompt = (
@@ -59,12 +65,13 @@ def generate_ai_caption(video_title: str, platform: str) -> str:
 
 # --- HANDLE LINKS & MESSAGES ---
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text.strip()
+    raw_text = update.message.text.strip()
+    url = extract_url(raw_text)
     
-    if text.startswith("http://") or text.startswith("https://"):
+    if url.startswith("http://") or url.startswith("https://"):
         await update.message.reply_text("⏳ កំពុងទាញយកវីដេអូ និងបង្កើត AI Caption ជូន, សូមរង់ចាំបន្តិច...")
         
-ydl_opts = {
+        ydl_opts = {
             'format': 'best[ext=mp4]/best',
             'outtmpl': 'downloads/%(id)s.%(ext)s',
             'max_filesize': 50 * 1024 * 1024,
@@ -72,7 +79,7 @@ ydl_opts = {
             'geo_bypass': True,
             'extractor_args': {
                 'youtube': {
-                    'player_client': ['mweb']
+                    'player_client': ['mweb', 'android']
                 }
             },
         }
@@ -80,14 +87,13 @@ ydl_opts = {
         try:
             os.makedirs("downloads", exist_ok=True)
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(text, download=True)
+                info = ydl.extract_info(url, download=True)
                 filename = ydl.prepare_filename(info)
                 title = info.get('title', 'Downloaded Video')
                 extractor = info.get('extractor', 'Social Media')
 
             ai_caption = generate_ai_caption(title, extractor)
             
-            # Safe truncation to strictly comply with Telegram's 1024 caption limit
             caption_text = f"🎥 **{title}**\n\n{ai_caption}"
             if len(caption_text) > 1024:
                 caption_text = caption_text[:1021] + "..."
@@ -103,12 +109,12 @@ ydl_opts = {
                 os.remove(filename)
                 
         except Exception as e:
-            await update.message.reply_text(f"❌ មិនអាចទាញយកវីដេអូនេះបានទេ (វីដេអូធំពេក ឬជាប់សិទ្ធិ): {str(e)}")
+            await update.message.reply_text(f"❌ មិនអាចទាញយកវីដេអូនេះได้ទេ (វីដេអូធំពេក ឬជាប់សិទ្ធិ): {str(e)}")
     else:
         try:
             response = client.models.generate_content(
                 model='gemini-3.6-flash',
-                contents=text,
+                contents=raw_text,
             )
             await update.message.reply_text(response.text)
         except Exception as e:
@@ -124,17 +130,15 @@ async def mp3_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("⏳ កំពុងបម្លែងជាសំឡេង MP3, សូមរង់ចាំបន្តិច...")
     
     ydl_opts = {
-            'format': 'best[ext=mp4]/best',
-            'outtmpl': 'downloads/%(id)s.%(ext)s',
-            'max_filesize': 50 * 1024 * 1024,
-            'nocheckcertificate': True,
-            'geo_bypass': True,
-            'extractor_args': {
-                'youtube': {
-                    'player_client': ['mweb']
-                }
-            },
-        }
+        'format': 'bestaudio/best',
+        'outtmpl': 'downloads/%(id)s.%(ext)s',
+        'nocheckcertificate': True,
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['mweb', 'android']
+            }
+        },
+    }
     
     try:
         os.makedirs("downloads", exist_ok=True)
