@@ -75,8 +75,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             'format': 'best[ext=mp4]/best',
             'outtmpl': 'downloads/%(id)s.%(ext)s',
             'max_filesize': 50 * 1024 * 1024,
+            'cookiefile': os.path.join(os.getcwd(), 'cookies.txt'), # បញ្ជាក់ទីតាំងច្បាស់លាស់
             'nocheckcertificate': True,
-            'geo_bypass': True,
             'extractor_args': {
                 'youtube': {
                     'player_client': ['mweb', 'android']
@@ -130,15 +130,17 @@ async def mp3_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("⏳ កំពុងបម្លែងជាសំឡេង MP3, សូមរង់ចាំបន្តិច...")
     
     ydl_opts = {
-        'format': 'bestaudio/best',
-        'outtmpl': 'downloads/%(id)s.%(ext)s',
-        'nocheckcertificate': True,
-        'extractor_args': {
-            'youtube': {
-                'player_client': ['mweb', 'android']
-            }
-        },
-    }
+            'format': 'best[ext=mp4]/best',
+            'outtmpl': 'downloads/%(id)s.%(ext)s',
+            'max_filesize': 50 * 1024 * 1024,
+            'cookiefile': os.path.join(os.getcwd(), 'cookies.txt'), # បញ្ជាក់ទីតាំងច្បាស់លាស់
+            'nocheckcertificate': True,
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['mweb', 'android']
+                }
+            },
+        }
     
     try:
         os.makedirs("downloads", exist_ok=True)
